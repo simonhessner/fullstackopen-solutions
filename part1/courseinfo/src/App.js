@@ -2,10 +2,13 @@ const Header = ({course}) => (
   <h1>{course}</h1>
 )
 
+const Part = ({name, exercises}) => (
+  <p>{name} {exercises}</p>
+)
+
 const Content = (props) => (
   <>
-    {props.data.map((data) =>
-    <p>{data[0]} {data[1]}</p>)}
+    {props.data.map((data) => <Part name={data[0]} exercises={data[1]} />)}
   </>
 )
 
