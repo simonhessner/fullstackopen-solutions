@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 let currentId = 0
 
@@ -29,15 +30,18 @@ const Filter = ({filterChangeHandler}) => (
 )
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', phone: '040-123456', id: currentId++ },
-    { name: 'Ada Lovelace', phone: '39-44-5323523', id: currentId++ },
-    { name: 'Dan Abramov', phone: '12-43-234345', id: currentId++ },
-    { name: 'Mary Poppendieck', phone: '39-23-6423122', id: currentId++ }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newPhone, setNewPhone] = useState('')
   const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons').then(r => {
+      const initialPersons = r.data  
+      setPersons(initialPersons)
+      currentId = Math.max(...initialPersons.map(p => p.id).values()) + 1
+    })
+  }, [])
 
   const handler = (setter) => (event) => {
     event.preventDefault()
