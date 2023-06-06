@@ -1,24 +1,9 @@
 {
   "persons": [
     {
-      "name": "Bonnie",
-      "phone": "4321",
-      "id": 2
-    },
-    {
-      "name": "ab",
-      "phone": "333333",
-      "id": 6
-    },
-    {
-      "name": "abs",
-      "phone": "dsd",
-      "id": 7
-    },
-    {
-      "name": "roflol",
-      "phone": "123",
-      "id": 8
+      "name": "Max Mustermann",
+      "phone": "12345",
+      "id": 1
     }
   ]
 }
