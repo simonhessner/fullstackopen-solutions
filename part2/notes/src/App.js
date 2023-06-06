@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import noteService from './services/notes'
 import Note from './components/Note'
 
 const App = () => {
@@ -8,27 +8,25 @@ const App = () => {
   const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
-    console.log('effect')
-      axios
-        .get('http://localhost:3001/notes')
-        .then(response => {
-          console.log('promise')
-          setNotes(response.data)
-      })
+      noteService
+        .getAll()
+        .then(allNotes => setNotes(allNotes))
     }, []
   )
-  console.log('render', notes.length, 'notes')
 
   const addNote = (event) => {
     event.preventDefault()
     const noteObject = {
       content: newNote,
       important: Math.random() > 0.5,
-      id: notes.length + 1,
     }
 
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
+    noteService
+      .create(noteObject)
+      .then(note => {
+        setNotes(notes.concat(note))
+        setNewNote('')
+      })
   }
 
   const handleNoteChange = (event) => {
@@ -38,6 +36,22 @@ const App = () => {
   const notesToShow = showAll
     ? notes
     : notes.filter(note => note.important)
+
+  const toggleImportance = (note) => {
+    const { id } = note
+    const url = `http://localhost:3001/notes/${id}`
+    const changedNote = { ...note, important: !note.important}
+
+    noteService
+      .update(id, changedNote)
+      .then(note => {
+        setNotes(notes.map(n => n.id !== id ? n: note))
+      })
+      .catch(error => {
+        alert('This note was already deleted from the server')
+        setNotes(notes.filter(n => n.id !== id))
+      })
+  }
 
   return (
     <div>
@@ -50,7 +64,11 @@ const App = () => {
       <ul>
         <ul>
           {notesToShow.map(note => 
-            <Note key={note.id} note={note} />
+            <Note 
+              key={note.id}
+              note={note}
+              toggleImportance={() => toggleImportance(note)}
+            />
           )}
         </ul>
       </ul>

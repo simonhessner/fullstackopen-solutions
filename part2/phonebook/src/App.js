@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import server from './services/persons'
 
-let currentId = 0
-
-const Phonebook = ({persons}) => (
+const Phonebook = ({ persons, deletePerson }) => (
   <ul>
     {
-      persons.map(p => <li key={p.id}>{p.name} {p.phone}</li>)
+      persons.map(p => (
+        <li key={p.id}>
+          {p.name} {p.phone} &nbsp;
+           <button onClick={() => deletePerson(p)}>X</button>
+        </li>
+      ))
     }
   </ul>
 )
@@ -36,11 +39,7 @@ const App = () => {
   const [filter, setFilter] = useState('')
 
   useEffect(() => {
-    axios.get('http://localhost:3001/persons').then(r => {
-      const initialPersons = r.data  
-      setPersons(initialPersons)
-      currentId = Math.max(...initialPersons.map(p => p.id).values()) + 1
-    })
+    server.getAllPersons().then(persons => setPersons(persons))
   }, [])
 
   const handler = (setter) => (event) => {
@@ -48,25 +47,53 @@ const App = () => {
     setter(event.target.value)
   }
 
-  const addPerson = (event) => {
+  const resetForm = () => {
+    setNewName('')
+    setNewPhone('')
+  }
+
+  const addPersonHandler = (event) => {
     event.preventDefault()
 
-    if (persons.find(p => p.name === newName) !== undefined) {
-      alert("This person already exists")
+    let existingPerson = persons.find(p => p.name === newName)
+    if (existingPerson !== undefined) {
+      if(!window.confirm(`${newName} already exists. Do you want to change their number?`)) return
+
+      const newPerson = { ...existingPerson, phone: newPhone }
+      server
+        .replacePerson(newPerson)
+        .then((person) => {
+          setPersons(persons.map(p => p.id !== newPerson.id ? p : person))
+        })
+
+      resetForm()
       return
     }
 
-    setPersons([
-      ...persons,
-      {
-        name: newName,
-        phone: newPhone,
-        id: currentId++
-      }
-    ])
+    const newPersonData = {
+      name: newName,
+      phone: newPhone
+    }
 
-    setNewName('')
-    setNewPhone('')
+    server.addPerson(newPersonData)
+      .then(person => {
+        setPersons([
+          ...persons,
+          person
+        ])
+      })
+
+    resetForm()
+  }
+
+  const deletePerson = person => {
+    if(!window.confirm(`Delete ${person.name}?`)) return
+    
+    server
+      .deletePerson(person)
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== person.id))
+      })
   }
 
   const personsToShow = filter.trim() === '' 
@@ -83,10 +110,13 @@ const App = () => {
         newNameHandler={handler(setNewName)}
         newPhone={newPhone}
         newPhoneHandler={handler(setNewPhone)}
-        buttonHandler={addPerson}
+        buttonHandler={addPersonHandler}
       />
       <h2>Numbers</h2>
-      <Phonebook persons={personsToShow} />
+      <Phonebook
+        persons={personsToShow}
+        deletePerson={deletePerson}
+      />
     </div>
   )
 }
