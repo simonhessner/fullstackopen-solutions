@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import server from './services/persons'
+import Notification from './Notification'
 
 const Phonebook = ({ persons, deletePerson }) => (
   <ul>
@@ -37,6 +38,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newPhone, setNewPhone] = useState('')
   const [filter, setFilter] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     server.getAllPersons().then(persons => setPersons(persons))
@@ -64,6 +67,13 @@ const App = () => {
         .replacePerson(newPerson)
         .then((person) => {
           setPersons(persons.map(p => p.id !== newPerson.id ? p : person))
+          setNotification(`${person.name}'s number updated from ${existingPerson.phone} to ${newPhone}`)
+          setTimeout(() => setNotification(null), 3000)
+        })
+        .catch(error => {
+          setPersons(persons.filter(p => p.id !== existingPerson.id))
+          setError(`${existingPerson.name} has already been removed`)
+          setTimeout(() => setError(null), 3000)
         })
 
       resetForm()
@@ -81,6 +91,8 @@ const App = () => {
           ...persons,
           person
         ])
+        setNotification(`${person.name} added`)
+        setTimeout(() => setNotification(null), 3000)
       })
 
     resetForm()
@@ -88,11 +100,19 @@ const App = () => {
 
   const deletePerson = person => {
     if(!window.confirm(`Delete ${person.name}?`)) return
-    
+
     server
       .deletePerson(person)
       .then(() => {
         setPersons(persons.filter(p => p.id !== person.id))
+
+        setNotification(`${person.name} deleted`)
+        setTimeout(() => setNotification(null), 3000)
+      })
+      .catch(error => {
+        setPersons(persons.filter(p => p.id !== person.id))
+        setError(`${person.name} has already been removed`)
+        setTimeout(() => setError(null), 3000)
       })
   }
 
@@ -103,6 +123,8 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={notification} error={false} />
+      <Notification message={error} error={true} />
       <Filter filterChangeHandler={handler(setFilter)} />
       <h2>Add a new person</h2>
       <Form
