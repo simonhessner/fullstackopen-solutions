@@ -94,13 +94,14 @@ const App = () => {
         ])
         setNotification(`${person.name} added`)
         setTimeout(() => setNotification(null), 3000)
+        resetForm()
       })
       .catch(error => {
-        setError(error.response.data["error"])
+        setError(error.response.data.error)
         setTimeout(() => setError(null), 3000)
       })
 
-    resetForm()
+    
   }
 
   const deletePerson = person => {
