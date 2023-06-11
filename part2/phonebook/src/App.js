@@ -58,7 +58,8 @@ const App = () => {
   const addPersonHandler = (event) => {
     event.preventDefault()
 
-    let existingPerson = persons.find(p => p.name === newName)
+    const existingPerson = persons.find(p => p.name === newName)
+    console.log(111, existingPerson)
     if (existingPerson !== undefined) {
       if(!window.confirm(`${newName} already exists. Do you want to change their number?`)) return
 
@@ -93,6 +94,10 @@ const App = () => {
         ])
         setNotification(`${person.name} added`)
         setTimeout(() => setNotification(null), 3000)
+      })
+      .catch(error => {
+        setError(error.response.data["error"])
+        setTimeout(() => setError(null), 3000)
       })
 
     resetForm()
