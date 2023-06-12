@@ -6,6 +6,7 @@ const mongoose = require('mongoose')
 const blogsRouter = require('./controllers/blogs')
 const logger = require('./utils/logger')
 const { unknownEndpoint } = require('./utils/middleware')
+const morgan = require('morgan')
 
 mongoose.set('strictQuery', false)
 
@@ -20,6 +21,7 @@ mongoose.connect(mongoURI)
 
 app.use(cors())
 app.use(express.json())
+app.use(morgan('tiny'))
 
 app.use('/api/blogs', blogsRouter)
 
