@@ -19,73 +19,114 @@ const initialBlogs = [{
   likes: 12
 }]
 
+const findFirstBlog = async () => await Blog.findOne({})
+const findFirstId = async () => (await findFirstBlog()).id
+
 beforeEach(async () => {
   await Blog.deleteMany({})
-
-  for (let blog of initialBlogs) {
-    let blogObject = new Blog(blog)
-    await blogObject.save()
-  }
+  await Blog.insertMany(initialBlogs)
 })
 
-test('GET /api/blogs', async () => {
-  const response = await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/)
-  expect(response.body.length).toBe(initialBlogs.length)
+describe('GET /api/blogs', () => {
+  test('contains all blogs and is json', async () => {
+    const response = await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/)
+    expect(response.body.length).toBe(initialBlogs.length)
+  })
+
+  test('has id defined', async () => {
+    const blogs = (await api.get('/api/blogs')).body
+    expect(blogs[0].id).toBeDefined()
+  })
 })
 
-test('has id', async () => {
-  const blogs = (await api.get('/api/blogs')).body
-  expect(blogs[0].id).toBeDefined()
+describe('add blogs', () => {
+  test('add blog post', async () => {
+    const newBlog = {
+      title: 'This is new',
+      author: 'Walter White',
+      url: 'blabla',
+      likes: 2
+    }
+    const response = await api.post('/api/blogs').send(newBlog).expect(201)
+    const id = response.body.id
+
+    const currentBlogs = await Blog.find({})
+    expect(currentBlogs.length).toBe(initialBlogs.length + 1)
+
+    const foundBlog = await Blog.findById(id)
+    expect(foundBlog.title).toBe(newBlog.title)
+    expect(foundBlog.author).toBe(newBlog.author)
+    expect(foundBlog.url).toBe(newBlog.url)
+    expect(foundBlog.likes).toBe(newBlog.likes)
+  })
+
+  test('likes default to 0', async () => {
+    const newBlog = {
+      title: 'This blog has no like property',
+      author: 'Walter White',
+      url: 'https://google.com'
+    }
+    const response = await api.post('/api/blogs').send(newBlog)
+
+    expect(response.body.likes).toBe(0)
+  })
+
+  test('title is required', async () => {
+    const newBlog = {
+      author: 'Walter White',
+      url: 'https://google.com'
+    }
+
+    await api.post('/api/blogs').send(newBlog).expect(400)
+  })
+
+  test('url is required', async () => {
+    const newBlog = {
+      title: 'This blog has no url property',
+      author: 'Walter White'
+    }
+
+    await api.post('/api/blogs').send(newBlog).expect(400)
+  })
 })
 
-test('add blog post', async () => {
-  const newBlog = {
-    title: 'This is new',
-    author: 'Walter White',
-    url: 'blabla',
-    likes: 2
-  }
-  const response = await api.post('/api/blogs').send(newBlog).expect(201)
-  const id = response.body.id
+describe('delete blog', () => {
+  test('reduces blogs in database by 1', async () => {
+    const firstId = await findFirstId()
+    await api.delete(`/api/blogs/${firstId}`).expect(204)
 
-  const currentBlogs = await Blog.find({})
-  expect(currentBlogs.length).toBe(initialBlogs.length + 1)
+    const remainingBlogs = await Blog.find({})
+    expect(remainingBlogs.length).toBe(initialBlogs.length - 1)
 
-  const foundBlog = await Blog.findById(id)
-  expect(foundBlog.title).toBe(newBlog.title)
-  expect(foundBlog.author).toBe(newBlog.author)
-  expect(foundBlog.url).toBe(newBlog.url)
-  expect(foundBlog.likes).toBe(newBlog.likes)
+    expect(remainingBlogs.map(b => b.title)).not.toContain(initialBlogs[0].title)
+  })
+
+  test('invalid ID results in 400', async () => {
+    const invalidId = (await findFirstId()) + 'a'
+    await api.delete(`/api/blogs/${invalidId}`).expect(400)
+    expect((await Blog.find({})).length).toBe(initialBlogs.length)
+  })
 })
 
-test('likes default to 0', async () => {
-  const newBlog = {
-    title: 'This blog has no like property',
-    author: 'Walter White',
-    url: 'https://google.com'
-  }
-  const response = await api.post('/api/blogs').send(newBlog)
+describe('update blog', () => {
+  test('update likes', async () => {
+    const firstBlog = await findFirstBlog()
+    const firstId = firstBlog.id
+    const updatedBlog = { ...firstBlog.toJSON(), likes: firstBlog.likes + 1 }
+    await api.put(`/api/blogs/${firstId}`).send(updatedBlog).expect(200)
 
-  expect(response.body.likes).toBe(0)
+    const retrievedBlog = await Blog.findById(firstId)
+    expect(retrievedBlog.likes).toBe(firstBlog.likes + 1)
+  })
+
+  test('update likes of invalid ID', async () => {
+    const firstBlog = await findFirstBlog()
+    const firstId = firstBlog.id + 'X'
+    const updatedBlog = { ...firstBlog.toJSON(), likes: firstBlog.likes + 1 }
+    await api.put(`/api/blogs/${firstId}`).send(updatedBlog).expect(400)
+  })
 })
 
-test('title is required', async () => {
-  const newBlog = {
-    author: 'Walter White',
-    url: 'https://google.com'
-  }
-
-  await api.post('/api/blogs').send(newBlog).expect(400)
-})
-
-test('url is required', async () => {
-  const newBlog = {
-    title: 'This blog has no url property',
-    author: 'Walter White'
-  }
-
-  await api.post('/api/blogs').send(newBlog).expect(400)
-})
 
 afterAll(async () => {
   await mongoose.connection.close()
