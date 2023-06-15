@@ -1,4 +1,4 @@
-const { mongoURI } = require('./utils/config')
+const { MONGODB_URI } = require('./utils/config')
 const express = require('express')
 const app = express()
 const cors = require('cors')
@@ -10,8 +10,8 @@ const morgan = require('morgan')
 
 mongoose.set('strictQuery', false)
 
-logger.info('connecting to', mongoURI)
-mongoose.connect(mongoURI)
+logger.info('connecting to', MONGODB_URI)
+mongoose.connect(MONGODB_URI)
   .then(() => {
     logger.info('connected to mongoDB')
   })
