@@ -13,7 +13,16 @@ const invalidId = (error, request, response, next) => {
   }
 }
 
+const validationErrorHandler = (error, request, response, next) => {
+  if(error.name === 'ValidationError') {
+    return response.status(400).send({
+      error: error.message
+    })
+  }
+}
+
 module.exports = {
   unknownEndpoint,
-  invalidId
+  invalidId,
+  validationErrorHandler
 }

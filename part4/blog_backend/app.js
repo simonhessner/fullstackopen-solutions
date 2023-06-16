@@ -4,8 +4,9 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 const logger = require('./utils/logger')
-const { unknownEndpoint, invalidId } = require('./utils/middleware')
+const { unknownEndpoint, invalidId, validationErrorHandler } = require('./utils/middleware')
 const morgan = require('morgan')
 
 mongoose.set('strictQuery', false)
@@ -24,8 +25,10 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 app.use('/api/blogs', invalidId)
+app.use(validationErrorHandler)
 app.use(unknownEndpoint)
 
 module.exports = app
