@@ -17,7 +17,6 @@ const invalidId = (error, request, response, next) => {
 }
 
 const validationErrorHandler = (error, request, response, next) => {
-  console.log(545)
   if(error.name === 'ValidationError') {
     return response.status(400).send({
       error: error.message
@@ -28,7 +27,6 @@ const validationErrorHandler = (error, request, response, next) => {
 }
 
 const tokenError = (error, request, response, next) => {
-  console.log(error.name)
   if (error.name === 'JsonWebTokenError') {
     return response.status(400).json({
       error: error.message

@@ -48,7 +48,6 @@ blogsRouter.delete('/:id', async (request, response, next) => {
     if(blog !== null) {
       const blog_user_id = blog.user.toString()
       const user_id = user.id
-      console.log(blog_user_id, user_id)
       if(blog_user_id !== user_id) {
         logger.info(user_id, 'tried to delete a blog created by', blog_user_id)
         return response.status(401).send({
@@ -58,9 +57,10 @@ blogsRouter.delete('/:id', async (request, response, next) => {
         })
       }
 
-      await Blog.findByIdAndDelete(blog.id)
       user.blogs = user.blogs.filter(id => id !== blog.id)
       user.save()
+
+      await Blog.findByIdAndDelete(blog.id)
     }
 
     response.status(204).end()
