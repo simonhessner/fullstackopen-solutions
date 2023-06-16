@@ -1,6 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
+const logger = require('../utils/logger')
 
 blogsRouter.get('/', async (_request, response) => {
   const blogs = await Blog.find({}).populate('user')
@@ -8,27 +8,61 @@ blogsRouter.get('/', async (_request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
+  const body = request.body
+
   try {
-    const user = await User.findOne({}) // TODO
+    const user = request.user
+    if (user === null) {
+      return response.status(401).send({
+        error: 'User is not logged in'
+      })
+    }
 
     // add user to the blog
-    const blog = new Blog(request.body)
-    blog.user = user
+    const blog = new Blog(body)
+    blog.user = user.id
     const savedBlog = await blog.save()
 
     // Add blog to the user
-    user.blogs = user.blogs.concat(blog)
+    user.blogs = user.blogs.concat(blog._id)
     user.save()
 
     response.status(201).json(savedBlog)
   } catch(exception) {
-    response.status(400).end()
+    return response.status(400).send({
+      error: exception.message
+    })
   }
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
   try {
-    await Blog.findByIdAndDelete(request.params.id)
+    const user = request.user
+    if (user === null) {
+      return response.status(401).send({
+        error: 'User is not logged in'
+      })
+    }
+
+    const blog = await Blog.findById(request.params.id)
+    if(blog !== null) {
+      const blog_user_id = blog.user.toString()
+      const user_id = user.id
+      console.log(blog_user_id, user_id)
+      if(blog_user_id !== user_id) {
+        logger.info(user_id, 'tried to delete a blog created by', blog_user_id)
+        return response.status(401).send({
+          error: 'User is not the owner of this blog',
+          username: blog.user.username + ' ',
+          username2: user.username
+        })
+      }
+
+      await Blog.findByIdAndDelete(blog.id)
+      user.blogs = user.blogs.filter(id => id !== blog.id)
+      user.save()
+    }
+
     response.status(204).end()
   } catch(error) {
     next(error)
