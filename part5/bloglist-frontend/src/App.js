@@ -1,92 +1,15 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import './App.css'
 
-const LoginForm = ({ username, password, setUsername, setPassword, login}) => {
-  const submit = (event) => {
-    event.preventDefault()
-    login()
-  }
-  return <div>
-    <h2>Login to application</h2>
-    <form onSubmit={submit}>
-      <p>
-        <label htmlFor='username'>Username</label>
-        <input
-          id='username'
-          type='text'
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-        />
-      </p>
-      <p>
-        <label htmlFor='password'>Password</label>
-        <input
-          id='password'
-          type='password'
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
-      </p>
-      <p>
-        <button type='submit'>Login</button>
-      </p>
-    </form>
-  </div>
-}
-
-const BlogForm = ({ title, author, url, setTitle, setAuthor, setUrl, create}) => {
-  const submit = event => {
-    event.preventDefault()
-    create()
-  }
-
-  return <div>
-    <h2>Create new blog</h2>
-    <form onSubmit={submit}>
-      <p>
-        <label htmlFor='title'>title</label>
-        <input
-          type='text'
-          id='title'
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-        />
-      </p>
-      <p>
-        <label htmlFor='author'>author</label>
-        <input
-          type='text'
-          id='author'
-          value={author}
-          onChange={e => setAuthor(e.target.value)}
-        />
-      </p>
-      <p>
-        <label htmlFor='url'>url</label>
-        <input
-          type='text'
-          id='url'
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-        />
-      </p>
-      <button type='submit'>create</button>
-    </form>
-  </div>
-}
-
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [notification, setNotification] = useState(null)
 
   useEffect(() => {
@@ -120,14 +43,12 @@ const App = () => {
     setTimeout(() => setNotification(null), 3000)
   }
 
-  const loginHandler = async () => {
+  const loginHandler = async credentials => {
     try {
-      const user = await loginService.login({ username, password })
+      const user = await loginService.login(credentials)
       setUser(user)
       blogService.setToken(user.token)
       window.localStorage.setItem('user', JSON.stringify(user))
-      setUsername('')
-      setPassword('')
       showInfo(`${user.username} logged in`)
     } catch(exception) {
       console.log(exception)
@@ -140,7 +61,7 @@ const App = () => {
     setUser(null)
   }
   
-  const create = async () => {
+  const create = async ({ title, author, url }) => {
     try {
       const newBlog = {
         title,
@@ -171,25 +92,12 @@ const App = () => {
   return (
     <div>
       {notification && <Notification type={notification.type} message={notification.message} /> }
-      {!user && <LoginForm
-        username={username}
-        password={password} 
-        setUsername={setUsername}
-        setPassword={setPassword}
-        login={loginHandler}
+      {!user && <LoginForm login={loginHandler}
       />}
       {user && <div>
         Logged in: {user.username} <button onClick={logoutHandler}>Logout</button>
 
-        <BlogForm
-          title={title}
-          author={author}
-          url={url}
-          setTitle={setTitle}
-          setAuthor={setAuthor}
-          setUrl={setUrl}
-          create={create}
-        />
+        <BlogForm create={create} />
 
         <h2>blogs</h2>
         {blogs.map(blog =>
