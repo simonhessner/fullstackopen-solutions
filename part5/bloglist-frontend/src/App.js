@@ -83,6 +83,9 @@ const App = () => {
   }
 
   const remove = async id => {
+    if(!window.confirm(`Do you want to delete this blog post?`)) {
+      return
+    }
     try {
       await blogService.remove(id)
       setBlogs(blogs.filter(b => b.id !== id))
@@ -92,6 +95,18 @@ const App = () => {
       showError(exception.response.data.error)
     }
   }
+
+  const like = async blog => {
+    const response = await blogService.like(blog)
+    setBlogs(blogs.map(b => {
+      if(b.id === blog.id) {
+        return response.data
+      }
+      return b
+    }))
+  }
+
+  const sortedBlogs = [...blogs].sort((a,b) => b.likes - a.likes)
 
   return (
     <div>
@@ -106,8 +121,14 @@ const App = () => {
         </Togglable>
 
         <h2>blogs</h2>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} remove={() => remove(blog.id)} />
+        {sortedBlogs.map(blog =>
+          <Blog
+            key={blog.id}
+            blog={blog}
+            remove={() => remove(blog.id)}
+            like={() => like(blog)}
+            currentUser={user}
+          />
         )}
       </div>}      
     </div>

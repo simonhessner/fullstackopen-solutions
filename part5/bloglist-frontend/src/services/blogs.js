@@ -30,5 +30,15 @@ const remove = async id => {
   return response.data
 }
 
+const like = async blog => {
+  const newBlog = {
+    ...blog,
+    likes: blog.likes + 1,
+    user: blog.user.id
+  }
+  const response = await axios.put(`${baseUrl}/${blog.id}`, newBlog)
+  return response
+}
+
 // eslint-disable-next-line import/no-anonymous-default-export
-export default { getAll, create, remove, setToken }
+export default { getAll, create, remove, like, setToken }
