@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Togglable from './components/Toggable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import './App.css'
@@ -26,6 +27,8 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  const blogFormRef = useRef()
 
   const showError = message => {
     setNotification({
@@ -72,6 +75,7 @@ const App = () => {
       console.log(createdBlog)
       setBlogs([...blogs, createdBlog])
       showInfo(`Created '${createdBlog.title}'`)
+      blogFormRef.current.toggleVisibility()
     } catch(exception) {
       console.log(exception)
       showError(exception.response.data.error)
@@ -97,7 +101,9 @@ const App = () => {
       {user && <div>
         Logged in: {user.username} <button onClick={logoutHandler}>Logout</button>
 
-        <BlogForm create={create} />
+        <Togglable buttonLabel='new note' ref={blogFormRef}>
+          <BlogForm create={create} />
+        </Togglable>
 
         <h2>blogs</h2>
         {blogs.map(blog =>

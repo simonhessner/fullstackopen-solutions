@@ -8,6 +8,9 @@ const BlogForm = ({ create }) => {
   const submit = event => {
     event.preventDefault()
     create({ title, author, url })
+    setTitle('')
+    setAuthor('')
+    setUrl('')
   }
 
   return <div>
