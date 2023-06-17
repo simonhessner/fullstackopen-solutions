@@ -63,7 +63,7 @@ const App = () => {
     window.localStorage.removeItem('user')
     setUser(null)
   }
-  
+
   const create = async ({ title, author, url }) => {
     try {
       const newBlog = {
@@ -83,7 +83,7 @@ const App = () => {
   }
 
   const remove = async id => {
-    if(!window.confirm(`Do you want to delete this blog post?`)) {
+    if(!window.confirm('Do you want to delete this blog post?')) {
       return
     }
     try {
@@ -111,8 +111,7 @@ const App = () => {
   return (
     <div>
       {notification && <Notification type={notification.type} message={notification.message} /> }
-      {!user && <LoginForm login={loginHandler}
-      />}
+      {!user && <LoginForm login={loginHandler} />}
       {user && <div>
         Logged in: {user.username} <button onClick={logoutHandler}>Logout</button>
 
@@ -130,7 +129,7 @@ const App = () => {
             currentUser={user}
           />
         )}
-      </div>}      
+      </div>}
     </div>
   )
 }
