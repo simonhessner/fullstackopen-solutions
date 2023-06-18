@@ -123,7 +123,7 @@ describe('blog app', function() {
       cy.get('.blog-entry').should('not.contain', 'remove')
     })
 
-    it.only('blogs are sorted according to likes', function() {
+    it('blogs are sorted according to likes', function() {
       cy.request({
         url: `${Cypress.env('BACKEND')}/blogs/`,
         method: 'POST',

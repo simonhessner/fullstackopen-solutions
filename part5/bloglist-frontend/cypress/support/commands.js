@@ -26,9 +26,7 @@
 
 Cypress.Commands.add('login', user => {
   cy.request('POST', `${Cypress.env('BACKEND')}/login`, user).then(({ body }) => {
-    console.log('BODY', body)
     window.localStorage.setItem('user', JSON.stringify(body))
-    console.log(window.localStorage)
-    cy.visit('http://localhost:3000')
+    cy.visit('')
   })
 })
