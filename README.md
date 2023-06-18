@@ -1,1 +1,1 @@
-Live version: https://phonebook-test.fly.dev/
+My solutions to https://fullstackopen.com/
