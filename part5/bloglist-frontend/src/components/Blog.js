@@ -14,7 +14,7 @@ const Blog = ({ blog, remove, like, currentUser }) => {
 
   const isCreator = currentUser.username === blog.user.username
 
-  return <div style={ style }>
+  return <div style={ style } className='blog-entry'>
     <i>{blog.title}</i> by <i>{blog.author}</i>
     <button onClick={toggleVisibility}>{visibleButtonText}</button>
     { visible && <> <br />
