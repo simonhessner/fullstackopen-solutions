@@ -1,15 +1,25 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { voteFor } from '../reducers/anecdoteReducer'
+import { voteFor, set } from '../reducers/anecdoteReducer'
 import { setNotification, removeNotification } from '../reducers/notificationReducer'
+import { useEffect } from 'react'
+import axios from 'axios'
 
 const AnecdoteList = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/anecdotes').then(result => {
+      console.log(result)
+      dispatch(set(result.data))
+    })
+  }, [dispatch])
+
   const anecdotes = useSelector(state => {
     const anecdotes = state.anecdotes
     const filter = state.filter
     const filteredAnecdotes = anecdotes.filter(anecdote => anecdote.content.toLowerCase().includes(filter.toLowerCase()))
     return filteredAnecdotes.sort((a,b) => b.votes - a.votes)
   })
-  const dispatch = useDispatch()
 
   const vote = (id) => {
     console.log('vote', id)
