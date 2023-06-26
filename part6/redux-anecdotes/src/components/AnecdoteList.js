@@ -1,17 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { voteFor, set } from '../reducers/anecdoteReducer'
-import { setNotification, removeNotification } from '../reducers/notificationReducer'
+import { voteForAnecdote, loadAnecdotes } from '../reducers/anecdoteReducer'
+import { showNotification } from '../reducers/notificationReducer'
 import { useEffect } from 'react'
-import axios from 'axios'
 
 const AnecdoteList = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    axios.get('http://localhost:3001/anecdotes').then(result => {
-      console.log(result)
-      dispatch(set(result.data))
-    })
+    dispatch(loadAnecdotes())
   }, [dispatch])
 
   const anecdotes = useSelector(state => {
@@ -21,11 +17,9 @@ const AnecdoteList = () => {
     return filteredAnecdotes.sort((a,b) => b.votes - a.votes)
   })
 
-  const vote = (id) => {
-    console.log('vote', id)
-    dispatch(voteFor(id))
-    dispatch(setNotification('Vote counted'))
-    setTimeout(() => dispatch(removeNotification()), 5000)
+  const vote = anecdote => {
+    dispatch(voteForAnecdote(anecdote))
+    dispatch(showNotification('Vote counted', 5000))
   }
 
   return <>
@@ -36,7 +30,7 @@ const AnecdoteList = () => {
         </div>
         <div style={{ marginBottom: '5px' }}>
           has {anecdote.votes}
-          <button onClick={() => vote(anecdote.id)}>vote</button>
+          <button onClick={() => vote(anecdote)}>vote</button>
         </div>
       </div>
     )}
