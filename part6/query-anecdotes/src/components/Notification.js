@@ -1,16 +1,22 @@
+import { useNotificationValue } from "../notificationContext"
+
 const Notification = () => {
+  const {text, type} = useNotificationValue()
+  console.log(text, type)
+
   const style = {
     border: 'solid',
     padding: 10,
     borderWidth: 1,
-    marginBottom: 5
+    marginBottom: 5,
+    color: type === 'info' ? 'black' : 'red'
   }
-  
-  if (true) return null
+
+  if (text === null) return null
 
   return (
     <div style={style}>
-      
+      {text}
     </div>
   )
 }

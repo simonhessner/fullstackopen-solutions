@@ -2,8 +2,11 @@ import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { getAnecdotes, voteForAnecdote } from './requests'
+import { useShowNotification } from './notificationContext'
 
 const App = () => {
+  const showNotification = useShowNotification(5000)
+
   const queryClient = useQueryClient()
 
   const anecdotes = useQuery('anecdotes', getAnecdotes, {
@@ -15,8 +18,9 @@ const App = () => {
       const anecdotes = queryClient.getQueryData('anecdotes')
       const newAnecdotes = anecdotes.map(anecdote => anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote)
       queryClient.setQueryData('anecdotes', newAnecdotes)
+      showNotification(`Voted for '${updatedAnecdote.content}'`)
     }
-  })
+  })  
 
   const handleVote = (anecdote) => {
     voteAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 })
@@ -31,7 +35,6 @@ const App = () => {
   }
 
   if (anecdotes.isSuccess) {
-    console.log(anecdotes)
     return (
       <div>
         <h3>Anecdote app</h3>
