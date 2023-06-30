@@ -6,7 +6,6 @@ const initialState = {
 }
 
 const notificationReducer = (state, action) => {
-  console.log(1, state, action)
   switch(action.type) {
     case 'SET': return action.payload
     case 'RESET': return initialState

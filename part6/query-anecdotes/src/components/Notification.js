@@ -2,7 +2,6 @@ import { useNotificationValue } from "../notificationContext"
 
 const Notification = () => {
   const {text, type} = useNotificationValue()
-  console.log(text, type)
 
   const style = {
     border: 'solid',
