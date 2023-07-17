@@ -1,7 +1,9 @@
-import { useSelector } from "react-redux";
+import { useNotification } from "../hooks/notification";
 
 const Notification = () => {
-  const { type, message } = useSelector((state) => state.notification);
+  const {
+    current: { type, message },
+  } = useNotification();
   if (!type) return;
 
   return <div className={`notification ${type}`}>{message}</div>;

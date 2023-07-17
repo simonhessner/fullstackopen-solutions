@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
-const Blog = ({ blog, remove, like, currentUser }) => {
+const Blog = ({ blog, remove, like }) => {
+  const currentUser = useSelector((state) => state.user);
   const [visible, setVisible] = useState(false);
 
   const toggleVisibility = () => setVisible(!visible);
@@ -12,7 +14,7 @@ const Blog = ({ blog, remove, like, currentUser }) => {
     padding: "1px",
   };
 
-  const isCreator = currentUser.username === blog.user.username;
+  const isCreator = currentUser && currentUser.username === blog.user.username;
 
   return (
     <div style={style} className="blog-entry">
