@@ -7,15 +7,20 @@ import Togglable from "./components/Toggable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import "./App.css";
-
-console.log(
-  "this is a very long line with a lot of words in it. i wonder if it will be reformatted at some point or not hmmm mm m m m mm mmmm hihihihihih",
-);
+import { useDispatch } from "react-redux";
+import { showNotification } from "./reducers/notificationSlice";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [notification, setNotification] = useState(null);
+  const dispatch = useDispatch();
+
+  const notify = (type, message) => {
+    dispatch(showNotification(type, message, 5000));
+  };
+
+  const info = (message) => notify("info", message);
+  const error = (message) => notify("error", message);
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -32,32 +37,16 @@ const App = () => {
 
   const blogFormRef = useRef();
 
-  const showError = (message) => {
-    setNotification({
-      type: "error",
-      message,
-    });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
-  const showInfo = (message) => {
-    setNotification({
-      type: "info",
-      message,
-    });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
   const loginHandler = async (credentials) => {
     try {
       const user = await loginService.login(credentials);
       setUser(user);
       blogService.setToken(user.token);
       window.localStorage.setItem("user", JSON.stringify(user));
-      showInfo(`${user.username} logged in`);
+      info(`${user.username} logged in`);
     } catch (exception) {
       console.log(exception);
-      showError(exception.response.data.error);
+      error(exception.response.data.error);
     }
   };
 
@@ -76,11 +65,11 @@ const App = () => {
       const createdBlog = await blogService.create(newBlog);
       console.log(createdBlog);
       setBlogs([...blogs, createdBlog]);
-      showInfo(`Created '${createdBlog.title}'`);
+      info(`Created '${createdBlog.title}'`);
       blogFormRef.current.toggleVisibility();
     } catch (exception) {
       console.log(exception);
-      showError(exception.response.data.error);
+      error(exception.response.data.error);
     }
   };
 
@@ -91,10 +80,10 @@ const App = () => {
     try {
       await blogService.remove(id);
       setBlogs(blogs.filter((b) => b.id !== id));
-      showInfo("removed blog");
+      info("removed blog");
     } catch (exception) {
       console.log(exception);
-      showError(exception.response.data.error);
+      error(exception.response.data.error);
     }
   };
 
@@ -114,9 +103,7 @@ const App = () => {
 
   return (
     <div>
-      {notification && (
-        <Notification type={notification.type} message={notification.message} />
-      )}
+      <Notification />
       {!user && <LoginForm login={loginHandler} />}
       {user && (
         <div>
