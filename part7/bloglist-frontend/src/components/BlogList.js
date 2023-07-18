@@ -1,27 +1,13 @@
-import { useEffect, useRef } from "react";
-import Blog from ".//Blog";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
 import BlogForm from "./BlogForm";
 import Togglable from "./Toggable";
 import blogService from "../services/blogs";
-import { useDispatch, useSelector } from "react-redux";
-import { addBlog, deleteBlog, likeBlog, setBlogs } from "../reducers/blogSlice";
+import { addBlog } from "../reducers/blogSlice";
 import { useNotification } from "../hooks/notification";
-
-const useBlogs = () => {
-  // This custom hook handles fetching and sorting all blogs
-
-  const dispatch = useDispatch();
-
-  const blogs = useSelector((state) => state.blogs).toSorted(
-    (a, b) => b.likes - a.likes,
-  );
-
-  useEffect(() => {
-    blogService.getAll().then((blogs) => dispatch(setBlogs(blogs)));
-  }, []);
-
-  return blogs;
-};
+import { useBlogs } from "../hooks/blogs";
 
 const BlogList = () => {
   const notification = useNotification();
@@ -41,7 +27,7 @@ const BlogList = () => {
       const createdBlog = await blogService.create(newBlog);
       console.log(createdBlog);
       dispatch(addBlog(createdBlog));
-      notificaton.info(`Created '${createdBlog.title}'`);
+      notification.info(`Created '${createdBlog.title}'`);
       blogFormRef.current.toggleVisibility();
     } catch (exception) {
       console.log(exception);
@@ -49,26 +35,13 @@ const BlogList = () => {
     }
   };
 
-  const remove = async (id) => {
-    if (!window.confirm("Do you want to delete this blog post?")) {
-      return;
-    }
-    try {
-      await blogService.remove(id);
-      dispatch(deleteBlog({ id }));
-      notificaton.info("removed blog");
-    } catch (exception) {
-      console.log(exception);
-      notification.error(exception.response.data.error);
-    }
-  };
-
-  const like = async (blog) => {
-    await blogService.like(blog);
-    dispatch(likeBlog(blog));
-  };
-
   if (!user) return null;
+
+  const style = {
+    border: "1px solid black",
+    margin: "1px",
+    padding: "1px",
+  };
 
   return (
     <div>
@@ -77,12 +50,9 @@ const BlogList = () => {
       </Togglable>
       <h2>blogs</h2>
       {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          remove={() => remove(blog.id)}
-          like={() => like(blog)}
-        />
+        <div key={blog.id} style={style} className="blog-entry">
+          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+        </div>
       ))}
     </div>
   );

@@ -15,6 +15,11 @@ const getAll = () => {
   return request.then((response) => response.data);
 };
 
+const getOne = (id) => {
+  const request = axios.get(`${baseUrl}/${id}`);
+  return request.then((response) => response.data);
+};
+
 const getConfig = () => {
   const config = {
     headers: {
@@ -44,4 +49,4 @@ const like = async (blog) => {
   return response;
 };
 
-export default { getAll, create, remove, like, setToken };
+export default { getAll, getOne, create, remove, like, setToken };

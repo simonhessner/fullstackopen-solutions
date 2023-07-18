@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import userService from "../services/user";
+import { getAll } from "../services/user";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 const Users = () => {
   const [users, setUsers] = useState();
   useEffect(() => {
-    userService.getAll().then((users) => setUsers(users));
+    getAll().then((users) => setUsers(users));
   }, []);
   if (!users) return null;
-
-  console.log(users);
 
   return (
     <div>
@@ -25,7 +24,9 @@ const Users = () => {
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td>{user.username}</td>
+              <td>
+                <Link to={`/users/${user.id}`}>{user.username}</Link>
+              </td>
               <td>{user.blogs.length}</td>
             </tr>
           ))}
