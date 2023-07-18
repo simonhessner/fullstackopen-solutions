@@ -11,8 +11,7 @@ const LoginForm = () => {
 
   const login = async (credentials) => {
     try {
-      const user = await userService.login(credentials);
-      notification.info(`${user.username} logged in`);
+      return await userService.login(credentials);
     } catch (exception) {
       console.log(exception);
       notification.error(exception.response.data.error);
@@ -21,7 +20,9 @@ const LoginForm = () => {
 
   const submit = (event) => {
     event.preventDefault();
-    login({ username, password });
+    login({ username, password }).then((user) => {
+      notification.info(`${user.username} logged in`);
+    });
     setUsername("");
     setPassword("");
   };

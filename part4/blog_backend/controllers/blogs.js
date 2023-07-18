@@ -3,12 +3,15 @@ const Blog = require("../models/blog");
 const logger = require("../utils/logger");
 
 blogsRouter.get("/", async (_request, response) => {
-  const blogs = await Blog.find({}).populate("user");
+  // TODO it is not very performant to populate comments here
+  const blogs = await Blog.find({}).populate("user").populate("comments");
   response.json(blogs);
 });
 
 blogsRouter.get("/:id", async (request, response) => {
-  const blog = await Blog.findById(request.params.id).populate("user");
+  const blog = await Blog.findById(request.params.id)
+    .populate("user")
+    .populate("comments");
   if (blog === null) {
     response.status(404).json({
       error: "not found",

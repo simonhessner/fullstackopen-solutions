@@ -3,7 +3,7 @@ import blogService from "../services/blogs";
 import { useNotification } from "../hooks/notification";
 import { deleteBlog, likeBlog } from "../reducers/blogSlice";
 import { useBlogs } from "../hooks/blogs";
-import { Link, redirect, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Blog = ({ id }) => {
   const navigate = useNavigate();
@@ -52,6 +52,13 @@ const Blog = ({ id }) => {
         added by <Link to={`/users/${blog.user.id}`}>{blog.user.username}</Link>
       </p>
       {isCreator && <button onClick={remove}>remove</button>}
+
+      <h2>Comments</h2>
+      <ul>
+        {blog.comments.map((comment) => (
+          <li key={comment.id}>{comment.text}</li>
+        ))}
+      </ul>
     </div>
   );
 };
