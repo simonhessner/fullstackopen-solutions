@@ -4,6 +4,7 @@ import { useNotification } from "../hooks/notification";
 import { deleteBlog, likeBlog } from "../reducers/blogSlice";
 import { useBlogs } from "../hooks/blogs";
 import { Link, useNavigate } from "react-router-dom";
+import CommentForm from "./CommentForm";
 
 const Blog = ({ id }) => {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ const Blog = ({ id }) => {
       {isCreator && <button onClick={remove}>remove</button>}
 
       <h2>Comments</h2>
+      <CommentForm blogId={blog.id} />
       <ul>
         {blog.comments.map((comment) => (
           <li key={comment.id}>{comment.text}</li>

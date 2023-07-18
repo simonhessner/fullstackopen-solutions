@@ -15,9 +15,20 @@ export const blogSlice = createSlice({
           : { ...blog, likes: blog.likes + 1 },
       );
     },
+    commentBlog: (state, action) => {
+      const data = action.payload;
+      const blog = state.find((blog) => blog.id === data.blog.id);
+      const newComments = blog.comments.concat({
+        text: data.text,
+        id: data.id,
+      });
+      const newBlog = { ...blog, comments: newComments };
+      return state.map((blog) => (blog.id === data.blog.id ? newBlog : blog));
+    },
   },
 });
 
-export const { addBlog, setBlogs, deleteBlog, likeBlog } = blogSlice.actions;
+export const { addBlog, setBlogs, deleteBlog, likeBlog, commentBlog } =
+  blogSlice.actions;
 
 export default blogSlice.reducer;
