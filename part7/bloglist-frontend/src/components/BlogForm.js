@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { TextField, Button, Grid } from "@mui/material";
+import { TextField, Box, Button } from "@mui/material";
 
 import blogService from "../services/blogs";
 import { addBlog } from "../reducers/blogSlice";
@@ -23,7 +23,6 @@ const BlogForm = () => {
         url,
       };
       const createdBlog = await blogService.create(newBlog);
-      console.log(createdBlog);
       dispatch(addBlog(createdBlog));
       notification.info(`Created '${createdBlog.title}'`);
     } catch (exception) {
@@ -43,36 +42,40 @@ const BlogForm = () => {
   return (
     <div>
       <h2>Create new blog</h2>
-      <form onSubmit={submit}>
-        <p>
-          <TextField
-            variant="standard"
-            label="Title"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </p>
-        <p>
-          <TextField
-            variant="standard"
-            label="Author"
-            id="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-        </p>
-        <p>
-          <TextField
-            variant="standard"
-            label="URL"
-            id="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-        </p>
-        <button type="submit">create</button>
-      </form>
+      <Box
+        component="form"
+        sx={{
+          "& .MuiTextField-root": { m: 1, width: "50%", display: "block" },
+        }}
+        noValidate
+        autoComplete="off"
+        onSubmit={submit}
+      >
+        <TextField
+          variant="standard"
+          label="Title"
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <TextField
+          variant="standard"
+          label="Author"
+          id="author"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+        />
+        <TextField
+          variant="standard"
+          label="URL"
+          id="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <Button type="submit" variant="contained" color="primary">
+          create
+        </Button>
+      </Box>
     </div>
   );
 };
