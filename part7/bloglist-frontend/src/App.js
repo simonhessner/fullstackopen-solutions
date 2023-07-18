@@ -8,6 +8,7 @@ import Users from "./components/Users";
 import User from "./components/User";
 import { useUser } from "./hooks/user";
 import "./App.css";
+import { Container, Grid } from "@mui/material";
 
 const App = () => {
   const userService = useUser();
@@ -26,22 +27,37 @@ const App = () => {
   };
 
   return (
-    <>
+    <Container>
+      <Grid
+        container
+        spacing={2}
+        width={"100%"}
+        columns={20}
+        backgroundColor="#ccc"
+        padding="5px"
+      >
+        <Grid item xs={2}>
+          <Link style={linkPadding} to="/">
+            Blogs
+          </Link>
+        </Grid>
+        <Grid item xs={2}>
+          <Link style={linkPadding} to="/users">
+            Users
+          </Link>
+        </Grid>
+        <Grid item xs={12}></Grid>
+        <Grid item xs={4} alignContent={"revert"}>
+          {user && (
+            <span>
+              Logged in: {user.username}{" "}
+              <button onClick={userService.logout}>Logout</button>
+            </span>
+          )}
+        </Grid>
+      </Grid>
+
       <Notification />
-      <div style={menuStyle}>
-        <Link style={linkPadding} to="/">
-          Blogs
-        </Link>
-        <Link style={linkPadding} to="/users">
-          Users
-        </Link>
-        {user && (
-          <span>
-            Logged in: {user.username}{" "}
-            <button onClick={userService.logout}>Logout</button>
-          </span>
-        )}
-      </div>
 
       <LoginForm />
 
@@ -52,7 +68,7 @@ const App = () => {
         <Route path="/" element={<BlogList />} />
         <Route path="*" element="Not found" />
       </Routes>
-    </>
+    </Container>
   );
 };
 

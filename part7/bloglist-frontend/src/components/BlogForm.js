@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 
+import { TextField, Button, Grid } from "@mui/material";
+
 import blogService from "../services/blogs";
 import { addBlog } from "../reducers/blogSlice";
 import { useNotification } from "../hooks/notification";
@@ -43,27 +45,27 @@ const BlogForm = () => {
       <h2>Create new blog</h2>
       <form onSubmit={submit}>
         <p>
-          <label htmlFor="title">title</label>
-          <input
-            type="text"
+          <TextField
+            variant="standard"
+            label="Title"
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </p>
         <p>
-          <label htmlFor="author">author</label>
-          <input
-            type="text"
+          <TextField
+            variant="standard"
+            label="Author"
             id="author"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
           />
         </p>
         <p>
-          <label htmlFor="url">url</label>
-          <input
-            type="text"
+          <TextField
+            variant="standard"
+            label="URL"
             id="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
